@@ -2,16 +2,16 @@
 COVID 19 Data Exploration 
  I'd like to preface and state that although this is a brief and high level overview of COVID deaths and vaccinations, 
  the numbers were still very much astonishing. I'd like to acknowledge those that have lost a loved one to this relentless disease. 
- These aren't simply data points but actual lives. May you each find solace in any way possible. 
+ I'm fully aware that these aren't simply data points but actual lives. May you each find solace in any way possible. 
 */
 
 -- BRIEF BACKGROUND 
--- For my analysis I'll be working with two tables, global covid_deaths(deaths) and global covid_vax(vaccinations). 
+-- For my analysis I'll be working with two tables, global covid_data.deaths(deaths) and global covid_data.vax(vaccinations). 
 -- Both datasets were pulled from the 'Our World In Data' website: https://ourworldindata.org/covid-deaths. 
--- The data for both table range from February 2020 to January 2022. 
+-- The data for both tables range from February 2020 to January 2022. 
 
 -- GENERAL OVERVIEW 
--- How many observations are in each table ?
+-- How many observations are in each table?
 SELECT COUNT(*)
 FROM covid_data.vax;
 
@@ -30,13 +30,14 @@ SELECT COUNT(*)
 FROM covid_data.vax
 WHERE continent IS NOT NULL;
 
--- There are each 147,799 observations left for both tables, which I deem sufficient enough to gather for reasonable insight. 
+-- There are each 147,799 observations left for both tables, which I deem sufficient enough to gather reasonable insight. 
 
--- Select Data that we are going to be using
+-- Select data that we are going to be using
 SELECT location,
        date,
-       total_cases,
        new_cases,
+       total_cases,
+       new_deaths, 
        total_deaths,
        population
 FROM covid_data.deaths
@@ -44,7 +45,7 @@ WHERE continent IS NOT NULL
 ORDER BY 1,2;
 
 -- Total Cases Vs. Total Deaths 
--- Shows the liklihood of dying if an individual contracts COVID in the United States on a daily basis. 
+-- Shows the liklihood of death at a daily rate if an individual contracts COVID in the United States.
 WITH cte AS 
 (
 SELECT location,
@@ -62,8 +63,8 @@ SELECT AVG(death_percentage),
        MAX(death_percentage)
 FROM cte;
 
--- A summation of this information resulted in the following: 
--- On averagge the daily death rate of those in the United States infected with COVID is 2.574%.
+-- Summary: 
+-- On average the daily death rate of those in the United States infected with COVID is 2.574%.
 -- The minumum daily death rate is 1.207%.
 -- The maximum daily death rate is 10.909%.
 
@@ -86,12 +87,12 @@ SELECT AVG(contraction_percentage),
        MAX(contraction_percentage)
 FROM cte;
 
--- A summation of this information resulted in the following: 
+-- Summary: 
 -- On average people in the United States contracted COVID at a daily rate of 6.778% of the population.
 -- The minimum daily contraction rate in the US was at 3.004%.
 -- The maximum daily contraction rate in the US was at 21.704%.
 
--- Let's move away from the US and perform the same global analysis. 
+-- Let's move away from the US and perform the analysis on a global scale.
 SELECT location,
        population,
        MAX(total_cases)AS highest_infection_count,
@@ -116,12 +117,12 @@ GROUP BY 1
 ORDER BY 2 DESC
 LIMIT 3;
 
--- The 3 countries with the highest deaths are: 
+-- The 3 countries with the highest overall deaths are: 
 -- 1. United States
 -- 2. Brazil 
 -- 3. India
 
--- Continents with the highest deaths
+-- Continents with the highest overall deaths
 SELECT continent,
        MAX(total_deaths)AS total_death_count
 FROM covid_data.deaths
@@ -130,7 +131,7 @@ GROUP BY 1
 ORDER BY 2 DESC
 LIMIT 3;
 
--- The 3 continents with the highest deaths are:  
+-- The 3 continents with the highest overall deaths are:  
 -- North America
 -- South America
 -- Asia 
@@ -143,7 +144,7 @@ FROM covid_data.deaths
 WHERE continent IS NOT NULL
 ORDER BY 1, 2; 
 -- Total new cases: 358,086,048 (358M)
--- Total_new deaths: 5,590,584 (5.59M)  
+-- Total new deaths: 5,590,584 (5.59M)  
 -- Globally those newly infected with COVID are dying at a rate of: 1.561%. I'd like to point out that this percentage seems small but as you can see above 5.59 million deaths is no trivial matter. 
 
 
@@ -164,17 +165,15 @@ SELECT AVG(death_percentage),
        MAX(death_percentage)
 FROM cte;
  
--- A summation of this information resulted in the following: 
+-- Summary: 
 -- On average the daily death rate of people newly infected with COVID is 2.569%. 
--- The minimum daily death rate of newly infected people was at 0.188%
--- The maximum daily death rate of newly infected people was at 28.169%
+-- The minimum daily death rate of newly infected people is 0.188%
+-- The maximum daily death rate of newly infected people is 28.169%
 
 
 -- A LOOK AT VACCINATIONS
--- Let's introduce the covid vaccination table into our analysis 
-SELECT * 
-FROM covid_data.vax;
 
+-- Let's introduce the covid vaccination table into our analysis 
 -- Joining the two tables for analysis on vaccinations alongside COVID deaths 
 SELECT * 
 FROM covid_data.deaths AS death
@@ -197,7 +196,7 @@ WHERE death.continent IS NOT NULL
 ORDER BY 2,3; 
  
 -- Overall Population Vs. Percentage vaccinated
--- The query below also looks at a daily accumulation of total vaccinations percentages segmeneted by each location/country. 
+-- The query below also looks at a daily accumulated percentage total vaccinations segmeneted by each location/country. 
 WITH pop_vaxxed AS
 (
 SELECT death.date AS date, 
@@ -221,5 +220,6 @@ SELECT date,
 FROM pop_vaxxed
 ORDER BY 2,3;
 
-
+-- END OF ANALYSIS
+-- If you've made it this far, do refer to the tableau link in my READ ME file for a look at some data visualization of the analysis performed here. 
 
